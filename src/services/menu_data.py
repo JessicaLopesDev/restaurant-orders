@@ -7,21 +7,19 @@ from src.models.ingredient import Ingredient
 class MenuData:
     def __init__(self, source_path: str) -> None:
         self.source_path = source_path
-        self.dishes = set()
-        all_dishes = {}
+        self.dishes = self.reader()
 
+    def reader(self):
+        all_dishes = {}
         with open(self.source_path, encoding="utf-8") as file:
             for item in DictReader(file):
                 name = item['dish']
 
                 if name not in all_dishes:
-                    recipe = Dish(name, float(item['price']))
-                    all_dishes[name] = recipe
-                else:
-                    recipe = all_dishes[name]
+                    all_dishes[name] = Dish(name, float(item['price']))
 
-                recipe.add_ingredient_dependency(
+                all_dishes[name].add_ingredient_dependency(
                     Ingredient(item['ingredient']), int(item['recipe_amount'])
                 )
 
-                self.dishes.add(recipe)
+        return set(all_dishes.values())
